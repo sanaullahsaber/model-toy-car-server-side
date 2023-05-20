@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
@@ -29,18 +29,47 @@ async function run() {
     await client.connect();
 
     const carsCollection = client.db("toyCar").collection("toycars");
-
-    // react tab route is here
-    app.get("/toycars/:text", async (req, res) => {
-      if (req.params.text == "sports" || req.params.text == "hyper" || req.params.text == "luxury") {
-        const result = await carsCollection.find({ status: req.params.text }).toArray();
-        return res.send(result)
-      }
-      const result = await carsCollection.find({}).toArray();
+    
+    app.get('/toycars', async (req, res) => {
+      const cursor = carsCollection.find();
+      const result = await cursor.toArray();
       res.send(result)
-      
     })
 
+    // react tab route is here
+    app.get("/toycars/:text/:id?", async (req, res) => {
+      const { text, id } = req.params;
+
+      if (text === "sports" || text === "hyper" || text === "luxury") {
+        const query = { status: text };
+        const result = await carsCollection.find(query).toArray();
+        return res.send(result);
+      }
+
+      if (id) {
+        const query = { _id: new ObjectId(id) };
+        const options = {
+          projection: {
+            toyName: 1,
+            sellerName: 1,
+            sellerEmail: 1,
+            subcategory: 1,
+            price: 1,
+            rating: 1,
+            availableQuantity: 1,
+            pictureURL: 1,
+            detailDescription: 1,
+          },
+        };
+        const result = await carsCollection.findOne(query, options);
+        return res.send(result);
+      }
+
+      const result = await carsCollection.find({}).toArray();
+      res.send(result);
+    });
+
+    
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
