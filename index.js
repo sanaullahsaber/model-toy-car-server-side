@@ -72,12 +72,21 @@ async function run() {
 
     // all toys bookings 
     app.get('/bookings', async (req, res) => {
-      console.log(req.query.email);
       let query = {};
-      if (req.query?.email) {
-        query = {email: req.query.email}
+      if (req.query?.sellerEmail) {
+        query = { sellerEmail: req.query.sellerEmail };
       }
-      const result = await bookingCollection.find().toArray();
+
+      // star update here if we get back then just click crtl+z and  go back 
+      
+       const sortOptions = {};
+       if (req.query?.sort === "asc") {
+         sortOptions.price = 1; // Sort in ascending order based on price
+       } else if (req.query?.sort === "desc") {
+         sortOptions.price = -1; // Sort in descending order based on price
+       }
+
+      const result = await bookingCollection.find(query).sort(sortOptions).toArray();
       res.send(result);
     })
 
@@ -106,9 +115,10 @@ async function run() {
     // Add to Toy bookings
     app.post('/bookings', async (req, res) => {
       const booking = req.body;
+      booking.createdAt = new Date(); // Set the createdAt field to the current date and time
       console.log(booking);
       const result = await bookingCollection.insertOne(booking);
-      res.send(result)
+      res.send(result);
     })
 
 
