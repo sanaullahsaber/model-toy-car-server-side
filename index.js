@@ -70,12 +70,20 @@ async function run() {
       res.send(result);
     });
 
+    // all toys bookings 
+    app.get('/bookings', async (req, res) => {
+      console.log(req.query.email);
+      
+      const result = await bookingCollection.find().toArray();
+      res.send(result);
+    })
 
     // Add to Toy bookings
     app.post('/bookings', async (req, res) => {
       const booking = req.body;
       console.log(booking);
-      const result = await bookingCollection.insertOne(booking)
+      const result = await bookingCollection.insertOne(booking);
+      res.send(result)
     })
     
 
