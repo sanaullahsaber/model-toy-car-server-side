@@ -81,6 +81,28 @@ async function run() {
       res.send(result);
     })
 
+    // all toys inside view detail's route
+    app.get('/bookings/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const options = {
+        // Include only the `title` and `imdb` fields in the returned document
+        projection: {
+          name: 1,
+          sellerName: 1,
+          sellerEmail: 1,
+          subCategory: 1,
+          price: 1,
+          rating: 1,
+          quantity: 1,
+          photo: 1,
+          description: 1,
+        },
+      };
+      const result = await bookingCollection.findOne(query, options)
+      res.send(result);
+    })
+
     // Add to Toy bookings
     app.post('/bookings', async (req, res) => {
       const booking = req.body;
@@ -88,7 +110,7 @@ async function run() {
       const result = await bookingCollection.insertOne(booking);
       res.send(result)
     })
-    
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
