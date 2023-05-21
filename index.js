@@ -90,6 +90,8 @@ async function run() {
       res.send(result);
     })
 
+
+
     // all toys inside view detail's route
     app.get('/bookings/:id', async (req, res) => {
       const id = req.params.id;
@@ -119,6 +121,14 @@ async function run() {
       console.log(booking);
       const result = await bookingCollection.insertOne(booking);
       res.send(result);
+    })
+
+    // my toy page delete row
+    app.delete('/bookings/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await bookingCollection.deleteOne(query);
+      res.send(result)
     })
 
 
