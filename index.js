@@ -28,6 +28,11 @@ async function run() {
     const carsCollection = client.db("toyCar").collection("toycars");
     const bookingCollection = client.db("toyCar").collection("bookings");
 
+    // search bar section
+    const indexKeys = { name: 1 };
+    const indexOptions = { name: "name" };
+    const result = await bookingCollection.createIndex(indexKeys, indexOptions);
+
     app.get("/toycars", async (req, res) => {
       const cursor = carsCollection.find();
       const result = await cursor.toArray();
@@ -90,6 +95,15 @@ async function run() {
       res.send(result);
     });
 
+    // search api all toys
+    app.get("/bookings/:text", async (req, res) => {
+      const bookingSearch = req.params.text;
+      const result = await bookingCollection
+        .find({ name: { $regex: bookingSearch, $options: "i" } })
+        .toArray();
+      res.send(result);
+    });
+
     // all toys inside view detail's route
     app.get("/bookings/:id", async (req, res) => {
       const id = req.params.id;
@@ -127,7 +141,7 @@ async function run() {
       const filter = { _id: new ObjectId(id) };
       const updatedMyToy = req.body;
       const updateDoc = {
-        $set: {...updatedMyToy},
+        $set: { ...updatedMyToy },
       };
       const result = await bookingCollection.updateOne(filter, updateDoc);
       res.send(result);
