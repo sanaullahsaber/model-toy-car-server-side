@@ -96,7 +96,7 @@ async function run() {
     });
 
     // search api all toys
-    app.get("/bookings/:text", async (req, res) => {
+    app.get("/bookings/search/:text", async (req, res) => {
       const bookingSearch = req.params.text;
       const result = await bookingCollection
         .find({ name: { $regex: bookingSearch, $options: "i" } })
